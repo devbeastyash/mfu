@@ -1,1 +1,69 @@
+package com.mutualfunds.mf.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.mutualfunds.mf.entity.CustomerWalletEntity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+@SpringBootTest
+@ActiveProfiles("test")
+public class UpdateCustomerWalletRepositoryTest {
+
+    @Autowired
+    private UpdateCustomerWalletRepository walletRepository;
+
+    @BeforeEach
+    public void setUp() {
+        // Create test data
+        CustomerWalletEntity walletEntity = new CustomerWalletEntity();
+        walletEntity.setCustomerId(1);
+        walletEntity.setWalletBalance(100.0);
+        walletRepository.save(walletEntity);
+    }
+
+    @Test
+    @Transactional
+    public void testAddMoneyToWallet() {
+        // Arrange
+        double amount = 50.0;
+        int custId = 1;
+
+        // Acty
+        walletRepository.addMoneyToWallet(amount, custId);
+
+        // Assert
+        double updatedBalance = walletRepository.getAccountBalance(custId);
+        assertEquals(150.0, updatedBalance);
+    }
+
+    @Test
+    @Transactional
+    public void testWithdrawMoneyFromWallet() {
+        // Arrange
+        double amount = 30.0;
+        int custId = 1;
+
+        // Act
+        walletRepository.withdrawMoneyFromWallet(amount, custId);
+
+        // Assert
+        double updatedBalance = walletRepository.getAccountBalance(custId);
+        assertEquals(70.0, updatedBalance);
+    }
+
+    @Test
+    public void testGetAccountBalance() {
+        // Arrange
+        int custId = 1;
+
+        // Act
+        double balance = walletRepository.getAccountBalance(custId);
+
+        // Assert
+        assertEquals(100.0, balance);
+    }
+}
